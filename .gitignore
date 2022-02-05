@@ -13,3 +13,12 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# program name
+cardioids
+
+# test / debug output
+*.txt
+
+# image folder. no need to keep all the tests.
+images/
