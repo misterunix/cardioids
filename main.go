@@ -96,6 +96,10 @@ func main() {
 		Program.Edge = append(Program.Edge, p)
 	}
 
+	frame := 0
+
+	mm := 2
+
 	for loop := 0; loop < 360; loop++ {
 
 		// Clear the background of the image. No transparency.
@@ -104,55 +108,21 @@ func main() {
 		// Draw the outside circle.
 		Program.ibuf0.Ellipse(int(Program.Center.X), int(Program.Center.Y), int(diameter), int(diameter), Program.RadiusColor)
 
+		l := len(Program.Edge)
+
 		// Draw the cardioid
-		Cardioid(0, 2, float64(loop))
+		Cardioid(0, mm, float64(loop))
+		Cardioid(l/4, mm, float64(loop))
+		Cardioid((l/4)+(l/4), mm, float64(loop))
+		Cardioid((l/4)+(l/4)+(l/4), mm, float64(loop))
 
-		/*
-			l := len(Program.Edge)
-			m := 3
-			hss := 360 / float64(l)
-			startIndex := 0
-			endIndex := startIndex + m
-			for i := 0; i < l; i++ {
-				hs := math.Abs((hss * float64(i)))
-				h := math.Mod(hs, 360)
-				r, g, b := hsl.HSLtoRGB(h, 90, 90)
-				c := Program.ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
-				Program.ibuf0.Line(int(Program.Edge[startIndex].X), int(Program.Edge[startIndex].Y), int(Program.Edge[endIndex].X), int(Program.Edge[endIndex].Y), c)
-				startIndex += 1
-				startIndex = startIndex % l
-				endIndex = (endIndex + m) % l
-			}
-
-			startIndex = l / 3
-			endIndex = startIndex + m
-			for i := 0; i < l; i++ {
-				hs := math.Abs((hss * float64(i)) + 120)
-				h := math.Mod(hs, 360)
-				r, g, b := hsl.HSLtoRGB(h, 90, 90)
-				c := Program.ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
-				Program.ibuf0.Line(int(Program.Edge[startIndex].X), int(Program.Edge[startIndex].Y), int(Program.Edge[endIndex].X), int(Program.Edge[endIndex].Y), c)
-				startIndex += 1
-				startIndex = startIndex % l
-				endIndex = (endIndex + m) % l
-			}
-
-			startIndex = l/3 + (l / 3)
-			endIndex = startIndex + m
-			for i := 0; i < l; i++ {
-				hs := math.Abs((hss * float64(i)) + 240)
-				h := math.Mod(hs, 360)
-				r, g, b := hsl.HSLtoRGB(h, 90, 90)
-				c := Program.ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
-				Program.ibuf0.Line(int(Program.Edge[startIndex].X), int(Program.Edge[startIndex].Y), int(Program.Edge[endIndex].X), int(Program.Edge[endIndex].Y), c)
-				startIndex += 1
-				startIndex = startIndex % l
-				endIndex = (endIndex + m) % l
-			}
-		*/
+		//Cardioid(l/3, mm, float64(loop))
+		//Cardioid((l/3)+(l/3), mm, float64(loop))
 
 		//filename := fmt.Sprintf("images/%06d.png", Program.Pid)
-		filename := fmt.Sprintf("images/%06d.png", loop)
+		filename := fmt.Sprintf("images/%06d.png", frame)
 		Program.ibuf0.Png(filename)
+		frame++
 	}
+
 }
