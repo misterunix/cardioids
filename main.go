@@ -28,16 +28,18 @@ type Point struct {
 }
 
 type ProgVars struct {
-	Pid         int
-	ibuf0       *gd.Image
-	Center      Point
-	Edge        []Point
-	CircleSteps int
+	Pid          int
+	ibuf0        *gd.Image
+	Center       Point
+	RadiusColor  gd.Color
+	BackGndColor gd.Color
+	Edge         []Point
+	CircleSteps  int
 }
 
 var Program ProgVars
 
-func Cardiods(startpos int, modstep int, hueStart float64) {
+func Cardioid(startpos int, modstep int, hueStart float64) {
 	l := len(Program.Edge)
 
 	hss := 360 / float64(l)
@@ -80,8 +82,11 @@ func main() {
 	Program.Center.Y = float64(height) / 2.0
 
 	Program.ibuf0 = gd.CreateTrueColor(width, height)
-	c1 := Program.ibuf0.ColorAllocateAlpha(0xFF, 0xFF, 0xFF, 0)
-	Program.ibuf0.Ellipse(int(Program.Center.X), int(Program.Center.Y), int(diameter), int(diameter), c1)
+	Program.BackGndColor = Program.ibuf0.ColorAllocate(0x00, 0x00, 0x00)
+	Program.RadiusColor = Program.ibuf0.ColorAllocateAlpha(0xFF, 0xFF, 0xFF, 0)
+
+	Program.ibuf0.Fill(width/2, height/2, Program.BackGndColor)
+	Program.ibuf0.Ellipse(int(Program.Center.X), int(Program.Center.Y), int(diameter), int(diameter), Program.RadiusColor)
 
 	for i := 0; i < 360; i += step {
 		p := Point{}
@@ -91,53 +96,63 @@ func main() {
 		Program.Edge = append(Program.Edge, p)
 	}
 
-	Cardiods(0, 2, 120)
+	for loop := 0; loop < 360; loop++ {
 
-	/*
-		l := len(Program.Edge)
-		m := 3
-		hss := 360 / float64(l)
-		startIndex := 0
-		endIndex := startIndex + m
-		for i := 0; i < l; i++ {
-			hs := math.Abs((hss * float64(i)))
-			h := math.Mod(hs, 360)
-			r, g, b := hsl.HSLtoRGB(h, 90, 90)
-			c := Program.ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
-			Program.ibuf0.Line(int(Program.Edge[startIndex].X), int(Program.Edge[startIndex].Y), int(Program.Edge[endIndex].X), int(Program.Edge[endIndex].Y), c)
-			startIndex += 1
-			startIndex = startIndex % l
-			endIndex = (endIndex + m) % l
-		}
+		// Clear the background of the image. No transparency.
+		Program.ibuf0.Fill(width/2, height/2, Program.BackGndColor)
 
-		startIndex = l / 3
-		endIndex = startIndex + m
-		for i := 0; i < l; i++ {
-			hs := math.Abs((hss * float64(i)) + 120)
-			h := math.Mod(hs, 360)
-			r, g, b := hsl.HSLtoRGB(h, 90, 90)
-			c := Program.ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
-			Program.ibuf0.Line(int(Program.Edge[startIndex].X), int(Program.Edge[startIndex].Y), int(Program.Edge[endIndex].X), int(Program.Edge[endIndex].Y), c)
-			startIndex += 1
-			startIndex = startIndex % l
-			endIndex = (endIndex + m) % l
-		}
+		// Draw the outside circle.
+		Program.ibuf0.Ellipse(int(Program.Center.X), int(Program.Center.Y), int(diameter), int(diameter), Program.RadiusColor)
 
-		startIndex = l/3 + (l / 3)
-		endIndex = startIndex + m
-		for i := 0; i < l; i++ {
-			hs := math.Abs((hss * float64(i)) + 240)
-			h := math.Mod(hs, 360)
-			r, g, b := hsl.HSLtoRGB(h, 90, 90)
-			c := Program.ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
-			Program.ibuf0.Line(int(Program.Edge[startIndex].X), int(Program.Edge[startIndex].Y), int(Program.Edge[endIndex].X), int(Program.Edge[endIndex].Y), c)
-			startIndex += 1
-			startIndex = startIndex % l
-			endIndex = (endIndex + m) % l
-		}
-	*/
+		// Draw the cardioid
+		Cardioid(0, 2, float64(loop))
 
-	filename := fmt.Sprintf("images/%06d.png", Program.Pid)
-	Program.ibuf0.Png(filename)
+		/*
+			l := len(Program.Edge)
+			m := 3
+			hss := 360 / float64(l)
+			startIndex := 0
+			endIndex := startIndex + m
+			for i := 0; i < l; i++ {
+				hs := math.Abs((hss * float64(i)))
+				h := math.Mod(hs, 360)
+				r, g, b := hsl.HSLtoRGB(h, 90, 90)
+				c := Program.ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
+				Program.ibuf0.Line(int(Program.Edge[startIndex].X), int(Program.Edge[startIndex].Y), int(Program.Edge[endIndex].X), int(Program.Edge[endIndex].Y), c)
+				startIndex += 1
+				startIndex = startIndex % l
+				endIndex = (endIndex + m) % l
+			}
 
+			startIndex = l / 3
+			endIndex = startIndex + m
+			for i := 0; i < l; i++ {
+				hs := math.Abs((hss * float64(i)) + 120)
+				h := math.Mod(hs, 360)
+				r, g, b := hsl.HSLtoRGB(h, 90, 90)
+				c := Program.ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
+				Program.ibuf0.Line(int(Program.Edge[startIndex].X), int(Program.Edge[startIndex].Y), int(Program.Edge[endIndex].X), int(Program.Edge[endIndex].Y), c)
+				startIndex += 1
+				startIndex = startIndex % l
+				endIndex = (endIndex + m) % l
+			}
+
+			startIndex = l/3 + (l / 3)
+			endIndex = startIndex + m
+			for i := 0; i < l; i++ {
+				hs := math.Abs((hss * float64(i)) + 240)
+				h := math.Mod(hs, 360)
+				r, g, b := hsl.HSLtoRGB(h, 90, 90)
+				c := Program.ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
+				Program.ibuf0.Line(int(Program.Edge[startIndex].X), int(Program.Edge[startIndex].Y), int(Program.Edge[endIndex].X), int(Program.Edge[endIndex].Y), c)
+				startIndex += 1
+				startIndex = startIndex % l
+				endIndex = (endIndex + m) % l
+			}
+		*/
+
+		//filename := fmt.Sprintf("images/%06d.png", Program.Pid)
+		filename := fmt.Sprintf("images/%06d.png", loop)
+		Program.ibuf0.Png(filename)
+	}
 }

@@ -19,6 +19,7 @@ cardioids
 
 # test / debug output
 *.txt
+*.mp4
 
 # image folder. no need to keep all the tests.
 images/
