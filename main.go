@@ -105,7 +105,7 @@ func main() {
 		Program.ibuf0.Ellipse(int(Program.Center.X), int(Program.Center.Y), int(diameter), int(diameter), Program.RadiusColor)
 
 		// Draw the cardioid
-		Cardioid(0, 2, float64(loop))
+		Cardioid(0, 4, float64(loop))
 
 		/*
 			l := len(Program.Edge)
