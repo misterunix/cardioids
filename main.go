@@ -65,7 +65,7 @@ func main() {
 		hs := math.Abs((hss * float64(i)) - 270)
 		h := math.Mod(hs, 360)
 		r, g, b := hsl.HSLtoRGB(h, 90, 90)
-		c := ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 0)
+		c := ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
 		ibuf0.Line(int(Edge[startIndex].X), int(Edge[startIndex].Y), int(Edge[endIndex].X), int(Edge[endIndex].Y), c)
 		startIndex += 1
 		startIndex = startIndex % l
@@ -75,10 +75,23 @@ func main() {
 	startIndex = l / 3
 	endIndex = startIndex + m
 	for i := 0; i < l; i++ {
-		hs := math.Abs((hss * float64(i)) - 270)
+		hs := math.Abs((hss * float64(i)) + 45)
 		h := math.Mod(hs, 360)
 		r, g, b := hsl.HSLtoRGB(h, 90, 90)
-		c := ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 0)
+		c := ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
+		ibuf0.Line(int(Edge[startIndex].X), int(Edge[startIndex].Y), int(Edge[endIndex].X), int(Edge[endIndex].Y), c)
+		startIndex += 1
+		startIndex = startIndex % l
+		endIndex = (endIndex + m) % l
+	}
+
+	startIndex = l/3 + (l / 3)
+	endIndex = startIndex + m
+	for i := 0; i < l; i++ {
+		hs := math.Abs((hss * float64(i)) + 180)
+		h := math.Mod(hs, 360)
+		r, g, b := hsl.HSLtoRGB(h, 90, 90)
+		c := ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
 		ibuf0.Line(int(Edge[startIndex].X), int(Edge[startIndex].Y), int(Edge[endIndex].X), int(Edge[endIndex].Y), c)
 		startIndex += 1
 		startIndex = startIndex % l
