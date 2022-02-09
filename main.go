@@ -27,6 +27,8 @@ type Point struct {
 	Y float64
 }
 
+var CirclePoints []Point
+
 type ProgVars struct {
 	Pid          int
 	ibuf0        *gd.Image
@@ -37,10 +39,31 @@ type ProgVars struct {
 	CircleSteps  int
 }
 
-var Program ProgVars
+var pid int
+var ibuf0 *gd.Image
+var imageWidth int
+var imageHeight int
+var numberOfPoints float64
+var radius float64
+var center Point
+var diameter float64
+var bkGndColor gd.Color
+var circumfrenceColor gd.Color
+
+// MakePointsAroundCircle : Create slice of points around the circle.
+// Needs numberOfPoints and radius
+func MakePointsAroundCircle() {
+	for i := 0.0; i < 360.0; i += numberOfPoints {
+		p := Point{}
+		r := float64(i) * DEG2RAD
+		p.X = (math.Cos(r) * radius) + center.X
+		p.Y = (math.Sin(r) * radius) + center.Y
+		CirclePoints = append(CirclePoints, p)
+	}
+}
 
 func Cardioid(startpos int, modstep int, hueStart float64) {
-	l := len(Program.Edge)
+	l := len(CirclePoints)
 
 	hss := 360 / float64(l)
 	startIndex := startpos
@@ -58,8 +81,8 @@ func Cardioid(startpos int, modstep int, hueStart float64) {
 
 		h := math.Mod(hs, 360)
 		r, g, b := hsl.HSLtoRGB(h, 90, 90)
-		c := Program.ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
-		Program.ibuf0.Line(int(Program.Edge[startIndex].X), int(Program.Edge[startIndex].Y), int(Program.Edge[endIndex].X), int(Program.Edge[endIndex].Y), c)
+		c := ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
+		ibuf0.Line(int(CirclePoints[startIndex].X), int(CirclePoints[startIndex].Y), int(CirclePoints[endIndex].X), int(CirclePoints[endIndex].Y), c)
 		startIndex += 1
 		startIndex = startIndex % l
 		endIndex = (endIndex + modstep) % l
@@ -70,47 +93,51 @@ func main() {
 
 	fmt.Println("Program cardioid start.")
 
-	Program.Pid = os.Getpid()
+	pid = os.Getpid()
 
-	step := 2
+	//step := 2
 
-	width := 600
-	height := 600
-	diameter := float64(width) * .95
-	radius := diameter / 2.0
-	Program.Center.X = float64(width) / 2.0
-	Program.Center.Y = float64(height) / 2.0
+	imageWidth = 600
+	imageHeight = 600
 
-	Program.ibuf0 = gd.CreateTrueColor(width, height)
-	Program.BackGndColor = Program.ibuf0.ColorAllocate(0x00, 0x00, 0x00)
-	Program.RadiusColor = Program.ibuf0.ColorAllocateAlpha(0xFF, 0xFF, 0xFF, 0)
+	diameter = float64(imageWidth) * .95
+	radius = diameter / 2.0
+	center.X = float64(imageWidth) / 2.0
+	center.Y = float64(imageHeight) / 2.0
 
-	Program.ibuf0.Fill(width/2, height/2, Program.BackGndColor)
-	Program.ibuf0.Ellipse(int(Program.Center.X), int(Program.Center.Y), int(diameter), int(diameter), Program.RadiusColor)
+	ibuf0 = gd.CreateTrueColor(imageWidth, imageHeight)
+	bkGndColor = ibuf0.ColorAllocate(0x00, 0x00, 0x00)
+	circumfrenceColor = ibuf0.ColorAllocateAlpha(0xFF, 0xFF, 0xFF, 0)
 
-	for i := 0; i < 360; i += step {
+	ibuf0.Fill(int(center.X), int(center.Y), bkGndColor)
+	ibuf0.Ellipse(int(center.X), int(center.Y), int(diameter), int(diameter), circumfrenceColor)
+
+	CircleMod := 360
+
+	for i := 0; i < 360; i++ {
 		p := Point{}
 		r := float64(i) * DEG2RAD
-		p.X = (math.Cos(r) * radius) + Program.Center.X
-		p.Y = (math.Sin(r) * radius) + Program.Center.Y
-		Program.Edge = append(Program.Edge, p)
+		p.X = (math.Cos(r) * radius) + center.X
+		p.Y = (math.Sin(r) * radius) + center.Y
+		CirclePoints = append(CirclePoints, p)
 	}
 
 	frame := 0
 
 	mm := 2
 
-	for loop := 0; loop < 360; loop++ {
+	for loop := 0; loop < CircleMod; loop += mm {
 
 		// Clear the background of the image. No transparency.
-		Program.ibuf0.Fill(width/2, height/2, Program.BackGndColor)
+		ibuf0.Fill(int(center.X), int(center.Y), bkGndColor)
 
 		// Draw the outside circle.
-		Program.ibuf0.Ellipse(int(Program.Center.X), int(Program.Center.Y), int(diameter), int(diameter), Program.RadiusColor)
+		ibuf0.Ellipse(int(center.X), int(center.Y), int(diameter), int(diameter), circumfrenceColor)
 
-		l := len(Program.Edge)
+		l := len(CirclePoints)
 
 		// Draw the cardioid
+
 		Cardioid(0, mm, float64(loop))
 		Cardioid(l/4, mm, float64(loop))
 		Cardioid((l/4)+(l/4), mm, float64(loop))
@@ -121,7 +148,7 @@ func main() {
 
 		//filename := fmt.Sprintf("images/%06d.png", Program.Pid)
 		filename := fmt.Sprintf("images/%06d.png", frame)
-		Program.ibuf0.Png(filename)
+		ibuf0.Png(filename)
 		frame++
 	}
 
