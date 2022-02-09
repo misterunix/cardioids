@@ -53,7 +53,8 @@ var circumfrenceColor gd.Color
 // MakePointsAroundCircle : Create slice of points around the circle.
 // Needs numberOfPoints and radius
 func MakePointsAroundCircle() {
-	for i := 0.0; i < 360.0; i += numberOfPoints {
+	inc := 360 / numberOfPoints
+	for i := 0.0; i < 360.0; i += inc {
 		p := Point{}
 		r := float64(i) * DEG2RAD
 		p.X = (math.Cos(r) * radius) + center.X
@@ -64,6 +65,7 @@ func MakePointsAroundCircle() {
 
 func Cardioid(startpos int, modstep int, hueStart float64) {
 	l := len(CirclePoints)
+	fmt.Println(l)
 
 	hss := 360 / float64(l)
 	startIndex := startpos
@@ -82,6 +84,7 @@ func Cardioid(startpos int, modstep int, hueStart float64) {
 		h := math.Mod(hs, 360)
 		r, g, b := hsl.HSLtoRGB(h, 90, 90)
 		c := ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
+		fmt.Printf("i:%d startIndex:%d endIndex:%d\n", i, startIndex, endIndex)
 		ibuf0.Line(int(CirclePoints[startIndex].X), int(CirclePoints[startIndex].Y), int(CirclePoints[endIndex].X), int(CirclePoints[endIndex].Y), c)
 		startIndex += 1
 		startIndex = startIndex % l
@@ -110,46 +113,63 @@ func main() {
 	circumfrenceColor = ibuf0.ColorAllocateAlpha(0xFF, 0xFF, 0xFF, 0)
 
 	ibuf0.Fill(int(center.X), int(center.Y), bkGndColor)
-	ibuf0.Ellipse(int(center.X), int(center.Y), int(diameter), int(diameter), circumfrenceColor)
+	//ibuf0.Ellipse(int(center.X), int(center.Y), int(diameter), int(diameter), circumfrenceColor)
 
-	CircleMod := 360
+	jump := 180
+	//for {
+	numberOfPoints = float64(jump)
+	CirclePoints = CirclePoints[:0]
+	MakePointsAroundCircle()
+	//Cardioid(0, 6, 0)
+	CardioidAnimation1(0, 6, 0)
+	fn := fmt.Sprintf("images/%f.png", numberOfPoints)
+	ibuf0.Png(fn)
+	//jump = jump + 9
+	//	if jump >= 360.0 {
+	//		break
+	//	}
+	//}
+	//	CircleMod := 360
 
-	for i := 0; i < 360; i++ {
-		p := Point{}
-		r := float64(i) * DEG2RAD
-		p.X = (math.Cos(r) * radius) + center.X
-		p.Y = (math.Sin(r) * radius) + center.Y
-		CirclePoints = append(CirclePoints, p)
-	}
+	/*
+		for i := 0; i < 360; i++ {
+			p := Point{}
+			r := float64(i) * DEG2RAD
+			p.X = (math.Cos(r) * radius) + center.X
+			p.Y = (math.Sin(r) * radius) + center.Y
+			CirclePoints = append(CirclePoints, p)
+		}
+	*/
 
-	frame := 0
+	/*
+		frame := 0
 
-	mm := 2
+		mm := 2
 
-	for loop := 0; loop < CircleMod; loop += mm {
+		for loop := 0; loop < CircleMod; loop += mm {
 
-		// Clear the background of the image. No transparency.
-		ibuf0.Fill(int(center.X), int(center.Y), bkGndColor)
+			// Clear the background of the image. No transparency.
+			ibuf0.Fill(int(center.X), int(center.Y), bkGndColor)
 
-		// Draw the outside circle.
-		ibuf0.Ellipse(int(center.X), int(center.Y), int(diameter), int(diameter), circumfrenceColor)
+			// Draw the outside circle.
+			ibuf0.Ellipse(int(center.X), int(center.Y), int(diameter), int(diameter), circumfrenceColor)
 
-		l := len(CirclePoints)
+			l := len(CirclePoints)
 
-		// Draw the cardioid
+			// Draw the cardioid
 
-		Cardioid(0, mm, float64(loop))
-		Cardioid(l/4, mm, float64(loop))
-		Cardioid((l/4)+(l/4), mm, float64(loop))
-		Cardioid((l/4)+(l/4)+(l/4), mm, float64(loop))
+			Cardioid(0, mm, float64(loop))
+			Cardioid(l/4, mm, float64(loop))
+			Cardioid((l/4)+(l/4), mm, float64(loop))
+			Cardioid((l/4)+(l/4)+(l/4), mm, float64(loop))
 
-		//Cardioid(l/3, mm, float64(loop))
-		//Cardioid((l/3)+(l/3), mm, float64(loop))
+			//Cardioid(l/3, mm, float64(loop))
+			//Cardioid((l/3)+(l/3), mm, float64(loop))
 
-		//filename := fmt.Sprintf("images/%06d.png", Program.Pid)
-		filename := fmt.Sprintf("images/%06d.png", frame)
-		ibuf0.Png(filename)
-		frame++
-	}
-
+			//filename := fmt.Sprintf("images/%06d.png", Program.Pid)
+			filename := fmt.Sprintf("images/%06d.png", frame)
+			ibuf0.Png(filename)
+			frame++
+		}
+	*/
 }
