@@ -50,6 +50,8 @@ var diameter float64
 var bkGndColor gd.Color
 var circumfrenceColor gd.Color
 
+var framenumber int
+
 // MakePointsAroundCircle : Create slice of points around the circle.
 // Needs numberOfPoints and radius
 func MakePointsAroundCircle() {
@@ -109,21 +111,30 @@ func main() {
 	center.Y = float64(imageHeight) / 2.0
 
 	ibuf0 = gd.CreateTrueColor(imageWidth, imageHeight)
-	bkGndColor = ibuf0.ColorAllocate(0x00, 0x00, 0x00)
+	bkGndColor = ibuf0.ColorAllocateAlpha(0x00, 0x00, 0x00, 0)
 	circumfrenceColor = ibuf0.ColorAllocateAlpha(0xFF, 0xFF, 0xFF, 0)
-
-	ibuf0.Fill(int(center.X), int(center.Y), bkGndColor)
+	framenumber = 0
+	//ibuf0.Fill(int(center.X), int(center.Y), bkGndColor)
 	//ibuf0.Ellipse(int(center.X), int(center.Y), int(diameter), int(diameter), circumfrenceColor)
 
 	jump := 180
 	//for {
-	numberOfPoints = float64(jump)
-	CirclePoints = CirclePoints[:0]
-	MakePointsAroundCircle()
-	//Cardioid(0, 6, 0)
-	CardioidAnimation1(0, 6, 0)
-	fn := fmt.Sprintf("images/%f.png", numberOfPoints)
-	ibuf0.Png(fn)
+	for j := 2; j < 10; j++ {
+		//ibuf0.Fill(int(center.X), int(center.Y), bkGndColor)
+		ibuf0.FilledRectangle(0, 0, imageWidth, imageHeight, bkGndColor)
+		numberOfPoints = float64(jump)
+		CirclePoints = CirclePoints[:0]
+		MakePointsAroundCircle()
+		//Cardioid(0, 6, 0)
+		CardioidAnimation1(0, j, ((float64(j)-1)/9.0)*360.0)
+		for k := 0; k < 120; k++ {
+			fn := fmt.Sprintf("images/%06d.png", framenumber)
+			ibuf0.Png(fn)
+			framenumber++
+		}
+	}
+	//fn := fmt.Sprintf("images/%f.png", numberOfPoints)
+	//ibuf0.Png(fn)
 	//jump = jump + 9
 	//	if jump >= 360.0 {
 	//		break

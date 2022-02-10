@@ -8,6 +8,7 @@ import (
 )
 
 func CardioidAnimation1(startpos int, modstep int, hueStart float64) {
+
 	l := len(CirclePoints)
 
 	hss := 360 / float64(l)
@@ -29,8 +30,10 @@ func CardioidAnimation1(startpos int, modstep int, hueStart float64) {
 		c := ibuf0.ColorAllocateAlpha(int(r), int(g), int(b), 50)
 
 		ibuf0.Line(int(CirclePoints[startIndex].X), int(CirclePoints[startIndex].Y), int(CirclePoints[endIndex].X), int(CirclePoints[endIndex].Y), c)
-		fn := fmt.Sprintf("images/%06d.png", i)
+		fn := fmt.Sprintf("images/%06d.png", framenumber)
 		ibuf0.Png(fn)
+		framenumber++
+
 		startIndex += 1
 		startIndex = startIndex % l
 		endIndex = (endIndex + modstep) % l
